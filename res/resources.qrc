@@ -18,5 +18,7 @@
     <file>images/seekright.svg</file>
     <file>images/audio.svg</file>
     <file>images/noaudio.svg</file>
+
+    <file>qml/mpv.qml</file>
 </qresource>
 </RCC>

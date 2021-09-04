@@ -68,7 +68,7 @@ static void onUpdate(void *ctx)
 /* Begin Constructor/Destructor */
 
 MpvWidget::MpvWidget(QWidget *parent)
-    : QOpenGLWidget(parent),
+    : QQuickWidget(parent),
       m_cursorTimer(new QTimer(this))
 {
     /* Run initialization tasks */
@@ -157,15 +157,14 @@ MpvWidget::MpvWidget(QWidget *parent)
         mediator, &GlobalMediator::searchSettingsChanged,
         this,     &MpvWidget::initSubtitleRegex
     );
+
+    setResizeMode(QQuickWidget::ResizeMode::SizeRootObjectToView);
+    setSource(QUrl("qrc:///qml/mpv.qml"));
 }
 
 MpvWidget::~MpvWidget()
 {
     disconnect();
-    makeCurrent();
-    if (mpv_gl)
-        mpv_render_context_free(mpv_gl);
-    mpv_terminate_destroy(mpv);
     delete m_cursorTimer;
 #if __APPLE__
     delete m_powerHandler;
@@ -433,79 +432,6 @@ void MpvWidget::initSubtitleRegex()
 }
 
 /* End Initialization Functions */
-/* Begin OpenGL Functions */
-
-void MpvWidget::initializeGL()
-{
-    mpv_opengl_init_params gl_init_params{get_proc_address, nullptr, nullptr};
-    mpv_render_param params[]{
-        {
-            MPV_RENDER_PARAM_API_TYPE,
-            const_cast<char *>(MPV_RENDER_API_TYPE_OPENGL)
-        },
-        {MPV_RENDER_PARAM_OPENGL_INIT_PARAMS, &gl_init_params},
-        {MPV_RENDER_PARAM_INVALID,            nullptr}
-    };
-
-    if (mpv_render_context_create(&mpv_gl, mpv, params) < 0)
-    {
-        Q_EMIT GlobalMediator::getGlobalMediator()->showCritical(
-            "Could not start mpv",
-            "MpvWidget: Failed to initialize mpv GL context"
-        );
-        QCoreApplication::exit(EXIT_FAILURE);
-    }
-    mpv_render_context_set_update_callback(
-        mpv_gl, onUpdate, reinterpret_cast<void *>(this)
-    );
-}
-
-void MpvWidget::paintGL()
-{
-    qreal ratio = QApplication::desktop()->devicePixelRatioF();
-    mpv_opengl_fbo mpfbo{
-        static_cast<int>(defaultFramebufferObject()),
-        (int) (width()  * ratio),
-        (int) (height() * ratio),
-        0
-    };
-    int flip_y{1};
-
-    mpv_render_param params[] = {
-        {MPV_RENDER_PARAM_OPENGL_FBO, &mpfbo},
-        {MPV_RENDER_PARAM_FLIP_Y,     &flip_y},
-        {MPV_RENDER_PARAM_INVALID,    nullptr}
-    };
-    // See render_gl.h on what OpenGL environment mpv expects, and
-    // other API details.
-    mpv_render_context_render(mpv_gl, params);
-}
-
-// Make Qt invoke mpv_render_context_render() to draw a new/updated video frame.
-void MpvWidget::maybeUpdate()
-{
-    /* If the Qt window is not visible, Qt's update() will just skip rendering.
-     * This confuses mpv's render API, and may lead to small occasional
-     * freezes due to video rendering timing out.
-     * Handle this by manually redrawing.
-     * Note: Qt doesn't seem to provide a way to query whether update() will
-     *       be skipped, and the following code still fails when e.g. switching
-     *       to a different workspace with a reparenting window manager.
-     */
-    if (window()->isMinimized())
-    {
-        makeCurrent();
-        paintGL();
-        context()->swapBuffers(context()->surface());
-        doneCurrent();
-    }
-    else
-    {
-        update();
-    }
-}
-
-/* End OpenGL Functions */
 /* Begin Event Handlers */
 
 void MpvWidget::handleMpvEvent(mpv_event *event)
@@ -551,14 +477,14 @@ void MpvWidget::onMpvEvents()
 
 void MpvWidget::resizeEvent(QResizeEvent *event)
 {
-    QOpenGLWidget::resizeEvent(event);
+    QQuickWidget::resizeEvent(event);
     event->ignore();
     Q_EMIT GlobalMediator::getGlobalMediator()->playerResized();
 }
 
 void MpvWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    QOpenGLWidget::mouseMoveEvent(event);
+    QQuickWidget::mouseMoveEvent(event);
     event->ignore();
 
     if (cursor().shape() == Qt::BlankCursor)
@@ -571,7 +497,7 @@ void MpvWidget::mouseMoveEvent(QMouseEvent *event)
 
 void MpvWidget::mouseReleaseEvent(QMouseEvent *event)
 {
-    QOpenGLWidget::mouseReleaseEvent(event);
+    QQuickWidget::mouseReleaseEvent(event);
     event->ignore();
 
     QByteArray release = mouseButtonStringToString(event->button()).toUtf8();
@@ -588,7 +514,7 @@ void MpvWidget::mouseReleaseEvent(QMouseEvent *event)
 
 void MpvWidget::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    QOpenGLWidget::mouseDoubleClickEvent(event);
+    QQuickWidget::mouseDoubleClickEvent(event);
     event->ignore();
 
     QByteArray press =

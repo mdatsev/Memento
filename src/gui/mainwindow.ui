@@ -47,7 +47,7 @@
       <property name="childrenCollapsible">
        <bool>false</bool>
       </property>
-      <widget class="MpvWidget" name="player">
+      <widget class="MpvWidget" name="player" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>0</horstretch>
@@ -325,7 +325,7 @@
  <customwidgets>
   <customwidget>
    <class>MpvWidget</class>
-   <extends>QOpenGLWidget</extends>
+   <extends>QWidget</extends>
    <header>src/gui/widgets/mpvwidget.h</header>
   </customwidget>
   <customwidget>

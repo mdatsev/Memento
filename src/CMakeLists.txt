@@ -16,7 +16,11 @@ add_executable(
     ../res/resources.qrc
     ${APP_ICON_RESOURCE_WINDOWS}
 )
-target_link_libraries(memento mainwindow)
+target_link_libraries(
+	memento
+	mainwindow
+	Qt5::Qml
+)
 
 if(UNIX AND NOT APPLE)
 	install(

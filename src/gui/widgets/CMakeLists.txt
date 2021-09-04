@@ -3,12 +3,15 @@ add_subdirectory(common)
 add_library(
     mpvwidget
     mpvwidget.cpp
+    mpvframebuffer.cpp
 )
 set(
     MPV_WIDGET_LIBS
     ${MPV_LIB}
     utils
     Qt5::Widgets
+    Qt5::QuickWidgets
+    Qt5::Quick
 )
 if(UNIX AND NOT APPLE)
     set(
@@ -16,7 +19,8 @@ if(UNIX AND NOT APPLE)
 	    ${MPV_WIDGET_LIBS}
 	    Qt5::DBus
     )
-elseif(UNIX AND APPLE)
+endif()
+if(UNIX AND APPLE)
     set(
         MPV_WIDGET_LIBS
         ${MPV_WIDGET_LIBS}

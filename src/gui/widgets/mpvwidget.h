@@ -21,9 +21,10 @@
 #ifndef MPVWIDGET_H
 #define MPVWIDGET_H
 
+#include <QQuickWidget>
+
 #include <QHash>
 #include <QMouseEvent>
-#include <QOpenGLWidget>
 #include <QRegularExpression>
 #include <QTimer>
 
@@ -39,7 +40,7 @@ class MacOSPowerEventHandler;
 /**
  * Widget that displays the video output from mpv.
  */
-class MpvWidget Q_DECL_FINAL : public QOpenGLWidget
+class MpvWidget Q_DECL_FINAL : public QQuickWidget
 {
     Q_OBJECT
 
@@ -59,7 +60,7 @@ public:
      * shown.
      * @return The recommend size of the widget.
      */
-    QSize sizeHint() const override { return QSize(480, 270);}
+    QSize sizeHint() const override { return QSize(480, 270); }
 
 Q_SIGNALS:
     /**
@@ -223,17 +224,6 @@ Q_SIGNALS:
 
 protected:
     /**
-     * Called once before the first call to paintGL().
-     * Initializes mpv's OpenGL render context.
-     */
-    void initializeGL() override;
-
-    /**
-     * Paints the current mpv frame.
-     */
-    void paintGL() override;
-
-    /**
      * Called when the mouse is moved.
      * @param event The mouse move event.
      */
@@ -264,11 +254,6 @@ private Q_SLOTS:
      * Processes all the events in the event queue.
      */
     void onMpvEvents();
-
-    /**
-     * Updates the current output if it needs to be updated.
-     */
-    void maybeUpdate();
 
     /**
      * Initializes the subtitle regex filter from the saved settings value.
@@ -313,9 +298,6 @@ private:
 
     /* The mpv context */
     mpv_handle *mpv;
-
-    /* The mpv render context */
-    mpv_render_context *mpv_gl;
 
     /* Maps mpv properties to the appropriate event handling function */
     QHash<QString, std::function<void(mpv_event_property *)>> m_propertyMap;

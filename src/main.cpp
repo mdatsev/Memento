@@ -24,6 +24,7 @@
 #include <QFontDatabase>
 #include <QMessageBox>
 #include <QSettings>
+#include <QQmlEngine>
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     #include <QStandardPaths>
@@ -35,6 +36,7 @@
 
 #include "audio/audioplayer.h"
 #include "gui/mainwindow.h"
+#include "gui/widgets/mpvframebuffer.h"
 #include "util/constants.h"
 #include "util/globalmediator.h"
 #include "util/iconfactory.h"
@@ -45,7 +47,7 @@
  * This is used during updates to make sure that configurations for old versions
  * don't cause problems.
  */
-void updateSettings()
+static void updateSettings()
 {
     QSettings settings;
     uint version = settings.value(SETTINGS_VERSION, 0).toUInt();
@@ -115,6 +117,11 @@ void updateSettings()
     settings.setValue(SETTINGS_VERSION, SETTINGS_VERSION_CURRENT);
 }
 
+static void registerQuickTypes()
+{
+    qmlRegisterType<MpvFramebuffer>("MpvFramebuffer", 1, 0, "MpvFramebuffer");
+}
+
 int main(int argc, char *argv[])
 {
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
@@ -136,6 +143,7 @@ int main(int argc, char *argv[])
     QGuiApplication::setWindowIcon(QIcon(":memento.svg"));
 
     updateSettings();
+    registerQuickTypes();
 
     /* Create the configuration directory if it doesn't exist */
     if (!QDir(DirectoryUtils::getConfigDir()).exists() &&
