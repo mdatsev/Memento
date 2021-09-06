@@ -27,6 +27,7 @@
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     #include <QStandardPaths>
+    #include <windows.h>
 #endif
 
 #if __APPLE__
@@ -120,6 +121,12 @@ int main(int argc, char *argv[])
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     /* Image Formats Windows */
     QCoreApplication::addLibraryPath(DirectoryUtils::getProgramDirectory());
+
+    /* Enable output in console */
+    if (AttachConsole(ATTACH_PARENT_PROCESS)) {
+        freopen("CONOUT$", "w", stdout);
+        freopen("CONOUT$", "w", stderr);
+    }
 #endif
     /* HiDPI support */
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);

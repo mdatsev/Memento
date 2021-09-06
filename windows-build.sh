@@ -20,7 +20,7 @@ LIBGCC=libgcc_s_dw2-1.dll
 fi
 
 # build Memento
-mkdir build
+mkdir -p build
 cd build
 $PREFIX/bin/cmake -G "MSYS Makefiles" -DCMAKE_BUILD_TYPE=Release ..
 $PREFIX/bin/cmake --build . -- -j4

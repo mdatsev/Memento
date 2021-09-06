@@ -3,7 +3,6 @@ Memento.code-workspace
 build
 src/moc_*
 Memento
-.vscode
 windows/src
 todo
 res/fonts
