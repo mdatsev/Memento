@@ -62,6 +62,12 @@ protected:
     void leaveEvent(QEvent *event) override;
 
     /**
+     * Pauses playback on subtitle hover, so one can use mouse only.
+     * @param event The enter event, not used.
+     */
+    void enterEvent(QEvent *event) override;
+
+    /**
      * Realigns the subtitle and prevents graphical jank by emitting signals.
      * @param event The resize event, not used.
      */
@@ -166,6 +172,9 @@ private:
 
     /* Saved pause state of the player. */
     bool m_paused;
+
+    /* Saved pause state of the player before mouse entered the subtitle. */
+    bool m_paused_before_enter;
 
     /* Contains information about the current subtitle. */
     struct Subtitle

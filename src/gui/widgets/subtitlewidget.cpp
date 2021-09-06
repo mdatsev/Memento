@@ -364,10 +364,24 @@ void SubtitleWidget::mouseDoubleClickEvent(QMouseEvent *event)
     QApplication::clipboard()->setText(m_subtitle.rawText);
 }
 
+void SubtitleWidget::enterEvent(QEvent *event) {
+    m_paused_before_enter = m_paused;
+
+    if (!m_paused_before_enter)
+    {
+        Q_EMIT GlobalMediator::getGlobalMediator()->controlsPause();
+    }
+}
+
 void SubtitleWidget::leaveEvent(QEvent *event)
 {
     m_findDelay->stop();
     m_currentIndex = -1;
+
+    if (!m_paused_before_enter)
+    {
+        Q_EMIT GlobalMediator::getGlobalMediator()->controlsPlay();
+    }
 }
 
 void SubtitleWidget::resizeEvent(QResizeEvent *event)
